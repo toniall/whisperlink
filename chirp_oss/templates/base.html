@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  WhisperLink OSS — shared HTML shell (nav, flash, CSP-safe layout).
+  Author: Antonio Brandao
+  License: MIT
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body data-edition="{{ EDITION }}" class="{% block bodyclass %}{% endblock %}">
+  <header class="top">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="28" height="28">
+      <span>{{ APP_NAME }}</span>
+      {% block edition_badge %}<em class="badge">open source · audible · no crypto</em>{% endblock %}
+    </a>
+    {% if user %}
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'on' if request.endpoint=='dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('room') }}" class="{{ 'on' if request.endpoint=='room' }}">Room</a>
+      <a href="{{ url_for('protocol') }}" class="{{ 'on' if request.endpoint=='protocol' }}">Protocol</a>
+      {% if user.is_admin %}<a href="{{ url_for('admin_users') }}" class="{{ 'on' if request.endpoint=='admin_users' }}">Users</a>{% endif %}
+    </nav>
+    <div class="who">
+      <a href="{{ url_for('account') }}" class="avatar" title="Account">{{ user.username[:1]|upper }}</a>
+      <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn ghost sm">Sign out</button></form>
+    </div>
+    {% endif %}
+  </header>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}<div class="flashes">{% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+  {% endwith %}
+  <main>{% block content %}{% endblock %}</main>
+  <div id="toasts"></div>
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

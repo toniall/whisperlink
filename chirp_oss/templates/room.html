@@ -1,0 +1,145 @@
+<!--
+  WhisperLink OSS — room UI (chat, files, session, spectrum).
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "base.html" %}
+{% block title %}Room · {{ APP_NAME }}{% endblock %}
+{% block bodyclass %}roompage{% endblock %}
+{% block content %}
+<div id="room" class="room" data-modes="{% block modes %}FAST,ROBUST{% endblock %}" data-maxfreq="{% block maxfreq %}9000{% endblock %}"
+     data-maxfile="{% block maxfile %}16384{% endblock %}" data-worklet="{{ url_for('static', filename='js/capture-worklet.js') }}">
+  {% block safety %}
+  <div class="banner warn slim"><b>Audible · unencrypted.</b> Everything you send is plaintext sound. Do not transmit secrets.</div>
+  {% endblock %}
+  <div id="secureWarn" class="banner bad slim" hidden><b>Microphone blocked:</b> browsers only allow the mic on HTTPS or <code>localhost</code>. Transmit and the simulated peer still work. See the README.</div>
+
+  <div id="simBanner" class="banner slim"></div>
+  <div class="chips">
+    <span class="chip" id="chipLink"><i></i>Link <b>—</b></span>
+    <span class="chip" id="chipSession"><i></i>Session <b>—</b></span>
+    <span class="chip" id="chipMode"><i></i>Mode <b>—</b></span>
+    <span class="chip" id="chipWin"><i></i>Window <b>—</b></span>
+    <span class="chip" id="chipAck"><i></i>ACK <b>—</b></span>
+    <span class="chip" id="chipSnr"><i></i>SNR <b>—</b></span>
+    <span class="chip" id="chipTx"><i></i>Radio <b>Idle</b></span>
+    {% block extrachips %}{% endblock %}
+  </div>
+
+  <div class="roomgrid">
+    <section class="card main">
+      <div class="controlbar">
+        <button id="micBtn" class="btn mic">🎙 Start mic</button>
+        <label class="field">Mode <select id="mode"></select></label>
+        {% block presetfield %}{% endblock %}
+        <label class="field">Window <select id="window"><option>2</option><option selected>3</option><option>4</option></select></label>
+        <label class="field grow">Volume <input id="volume" type="range" min="5" max="100" value="70"><output id="volv">70%</output></label>
+        <span class="rate" id="rate"></span>
+        <div class="spacer"></div>
+        <button id="connect" class="btn primary">Connect</button>
+        <button id="fin" class="btn ghost" data-need="session" disabled title="Graceful close (FIN)">Close</button>
+        <button id="rst" class="btn ghost danger" title="Abort (RST)">Reset</button>
+      </div>
+
+      <nav class="tabs">
+        <button class="on" data-tab="chat">💬 Chat</button>
+        <button data-tab="files">📁 Files</button>
+        <button data-tab="session">🔗 Session</button>
+        <button data-tab="keys">🔑 Keys</button>
+        <button data-tab="spectrum">📈 Spectrum</button>
+      </nav>
+
+      <div class="tabpane on" id="tab-chat">
+        <div class="chat" id="chat"><div class="empty" id="chatEmpty"><div class="pulse"></div><p>No messages yet.<br><small>Connect a session, then type below. Each bubble shows its ACK state.</small></p></div></div>
+        <div class="composer">
+          <textarea id="msg" rows="1" placeholder="Message — Enter to send, Shift+Enter for newline" maxlength="2000"></textarea>
+          <button id="send" class="btn primary" data-need="session" disabled>Send</button>
+        </div>
+      </div>
+
+      <div class="tabpane" id="tab-files">
+        <label class="drop" id="drop"><input id="fileIn" type="file" multiple hidden><span class="big">⇪</span><b>Drop files or click to choose</b><small>Max {% block maxfilelabel %}16 KB{% endblock %} — sound is slow: ~1 KB ≈ 30 s on FAST</small></label>
+        <div class="rxprog file" id="rxProgress" hidden><svg class="ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/><circle class="p" cx="22" cy="22" r="18"/><text x="22" y="26">0%</text></svg><div><b id="rxName">incoming…</b><small>receiving</small></div></div>
+        <div class="files" id="files"></div>
+      </div>
+
+      <div class="tabpane" id="tab-session">
+        <div class="grid2">
+          <div>
+            <h3>Sessions</h3>
+            <div id="sessions" class="sesslist"></div>
+            <h3>Options</h3>
+            <label class="switch"><input type="checkbox" id="listen" checked><span></span> Listen &amp; auto-accept incoming SYN</label>
+            <label class="switch"><input type="checkbox" id="fallback" checked><span></span> Auto FAST→ROBUST on NACK spike / timeouts</label>
+            <label class="switch"><input type="checkbox" id="simulate"><span></span> Simulated peer (silent software demo — no speaker)</label>
+            <div id="simOpts" class="simopts" hidden>
+              <label class="field">Channel SNR <input id="simSnr" type="range" min="0" max="30" value="18"><output id="simSnrv">18 dB</output></label>
+              <label class="field">Frame drop <input id="simDrop" type="range" min="0" max="60" value="10"><output id="simDropv">10%</output></label>
+            </div>
+            {% block sessionextra %}{% endblock %}
+            <div class="row">
+              <button id="loopback" class="btn ghost sm">Digital loopback test</button>
+              <button id="acoustic" class="btn ghost sm">Acoustic self-test</button>
+            </div>
+          </div>
+          <div>
+            <h3>Segments <small class="legend"><i class="queued"></i>queued <i class="inflight"></i>in flight <i class="sacked"></i>SACKed <i class="nack"></i>NACK <i class="acked"></i>ACKed</small></h3>
+            <div id="ackgrid" class="ackgrid"></div>
+            <h3>Counters</h3>
+            <div id="stats" class="stats"><p class="muted">—</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="tab-keys">
+        {% block keys %}
+        <div class="nokeys">
+          <div class="lock">🔓</div>
+          <h3>No keys in the open-source edition</h3>
+          <p>WhisperLink OSS deliberately ships <b>without encryption</b> and with <b>audible modes only</b>, so it stays simple, auditable and obviously-plaintext. Treat every transmission as public.</p>
+          <p class="muted">Need confidentiality? Layer your own end-to-end encryption on the payload, or use a commercial edition with an authenticated key exchange.</p>
+        </div>
+        {% endblock %}
+      </div>
+
+      <div class="tabpane" id="tab-spectrum">
+        <div class="spectools">
+          <label><input type="checkbox" id="scanAll" checked> <b>Scan all modes</b> — mark every mode's band, log frames from all of them</label>
+          <label><input type="checkbox" id="cleanView"> Clean view (zoom to active band, subtract noise floor)</label>
+          <span class="muted small" id="dspInfo"></span>
+        </div>
+        <h3>Waterfall <small class="muted" id="wfRange"></small></h3>
+        <canvas class="waterfall big" id="wfBig"></canvas>
+        <div class="grid2">
+          <div><h3>Sync detector <small class="muted">chirp match score · dashed = noise baseline · red = threshold</small></h3><canvas id="syncGraph" class="graph"></canvas><div class="muted small mono" id="syncMeter">—</div></div>
+          <div><h3>Tone energy <small class="muted" id="toneTitle"></small></h3><canvas id="toneBars" class="graph"></canvas></div>
+        </div>
+        <h3>Decoded frames <small class="muted">every preamble heard, in any mode · newest first · <span id="scanCount"></span></small> <button type="button" class="btn ghost sm" id="scanClear">Clear</button></h3>
+        <div class="scanlog"><table><thead><tr><th>Time</th><th>Mode</th><th>Band</th><th>SNR</th><th>Status</th><th>Frame</th><th>Payload</th></tr></thead><tbody id="scanLog"></tbody></table></div>
+        <div class="grid2">
+          <div><h3>Link SNR per frame <small class="muted">amber = RS corrected</small></h3><canvas id="snrGraph" class="graph"></canvas></div>
+          <div><h3>Burst ACK history <small class="muted">green ACKed · red NACKed</small></h3><canvas id="ackGraph" class="graph"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card side">
+      <h3>Live spectrum</h3>
+      <canvas class="waterfall" id="wfSmall"></canvas>
+      <canvas id="bars" class="bars"></canvas>
+      <div class="meter" id="meter"><i></i></div>
+      <h3>Protocol log</h3>
+      <div class="log" id="log"></div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/rs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modem.js') }}"></script>
+<script src="{{ url_for('static', filename='js/session.js') }}"></script>
+<script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+<script src="{{ url_for('static', filename='js/spectrum.js') }}"></script>
+{% block extscripts %}{% endblock %}
+<script src="{{ url_for('static', filename='js/room.js') }}"></script>
+{% endblock %}

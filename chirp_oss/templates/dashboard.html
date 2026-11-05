@@ -1,0 +1,40 @@
+<!--
+  WhisperLink OSS — signed-in dashboard and room entry.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="wide">
+  <div class="welcome card glow">
+    <div>
+      <h1>Hi {{ user.username }} 👋</h1>
+      <p class="muted">Open a room on two devices, start the mic on both, press <b>Connect</b> on one. Frames travel only through the air.</p>
+    </div>
+    <a class="btn primary lg" href="{{ url_for('room') }}">Open WhisperLink room →</a>
+  </div>
+  {% block banner %}
+  <div class="banner warn"><b>Audible only · no encryption.</b> This open-source edition sends plaintext tones. Anything you transmit can be recorded and decoded by anyone within earshot.</div>
+  {% endblock %}
+  <div class="cards3">
+    {% block modecards %}
+    <div class="card mode"><span class="pill accent">FAST</span><h3>~290 b/s payload</h3><p>4 parallel 16-tone bands, 1.5–7.4 kHz, 34 ms symbols. Desk-to-desk.</p></div>
+    <div class="card mode"><span class="pill">ROBUST</span><h3>~75 b/s payload</h3><p>2 bands, 0.9–4.8 kHz, 58 ms symbols, RS(16). Noisy rooms, cheap speakers.</p></div>
+    <div class="card mode"><span class="pill">SESSION</span><h3>TCP-like over air</h3><p>SYN/SYN-ACK/ACK, seq numbers, selective ACK bitmap, window 2–4, FIN/RST, keepalive, auto FAST→ROBUST.</p></div>
+    {% endblock %}
+  </div>
+  <div class="card">
+    <h2>Quick test without a second device</h2>
+    <ol class="steps">
+      <li>Open the room and tick <b>Simulated peer</b> (on by default).</li>
+      <li>Press <b>Connect</b> — watch SYN → SYN-ACK → ACK in the log and the spectrum.</li>
+      <li>Send a chat message or a small file; raise <i>drop %</i> to see NACKs, retransmits and the ROBUST fallback.</li>
+      <li>With a mic: run <b>Acoustic self-test</b> to verify your speaker→mic path decodes.</li>
+    </ol>
+  </div>
+  <div class="card mt1"><h2>Demo logins</h2>
+  <p class="muted">Demo accounts are listed in the README (admin is never published).</p>
+  <p class="muted">Microphone access needs HTTPS (e.g. https://whisperlink.abrandao.net/whisperlink/). Simulated peer works anywhere.</p></div>
+</section>
+{% endblock %}

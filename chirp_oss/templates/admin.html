@@ -1,0 +1,37 @@
+<!--
+  WhisperLink OSS — admin user management.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "base.html" %}
+{% block title %}Users · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="wide">
+  <div class="grid2">
+    <div class="card">
+      <h2>Users</h2>
+      <table class="table">
+        <thead><tr><th>User</th><th>Role</th><th>Created</th><th>Last login</th><th></th></tr></thead>
+        <tbody>
+        {% for u in users %}
+          <tr><td>{{ u.username }}{% if u.must_change %} <span class="pill warn">must change pw</span>{% endif %}</td>
+          <td><span class="pill {{ 'accent' if u.is_admin }}">{{ 'admin' if u.is_admin else 'user' }}</span></td>
+          <td>{{ u.created_at|ts }}</td><td>{{ u.last_login|ts }}</td>
+          <td>{% if u.id != user.id %}<form method="post" data-confirm="Delete {{ u.username }}?"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="uid" value="{{ u.id }}"><button class="btn ghost sm danger">Delete</button></form>{% endif %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Add user</h2>
+      <form method="post" class="form">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create">
+        <label>Username<input name="username" required pattern="[A-Za-z0-9._\-]{3,32}"></label>
+        <label>Temporary password <small>(blank = random)</small><input name="password" type="text" minlength="10"></label>
+        <label class="check"><input type="checkbox" name="is_admin"> Administrator</label>
+        <button class="btn primary">Create</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+<!--
+  WhisperLink OSS — self-registration form.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "_auth.html" %}
+{% block title %}Register · {{ APP_NAME }}{% endblock %}
+{% block form %}
+<h2>Create account</h2>
+<form method="post" class="form">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <label>Username<input name="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9._\-]+" autocomplete="username" required></label>
+  <label>Password <small>(10+ characters)</small><input name="password" type="password" minlength="10" autocomplete="new-password" required></label>
+  <label>Repeat password<input name="password2" type="password" minlength="10" autocomplete="new-password" required></label>
+  <button class="btn primary wide">Create account</button>
+</form>
+<p class="muted center">Have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+{% endblock %}

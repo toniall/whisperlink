@@ -1,0 +1,21 @@
+<!--
+  WhisperLink OSS — login/register layout with audible-only warning.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "base.html" %}
+{% block bodyclass %}auth{% endblock %}
+{% block content %}
+<section class="authwrap">
+  <div class="hero">
+    <div class="wave" aria-hidden="true">{% for i in range(36) %}<i></i>{% endfor %}</div>
+    {% block hero %}
+    <h1>Data over sound.<br><span class="grad">Reliable this time.</span></h1>
+    <p>Speaker → air → microphone. A TCP-style session with selective ACKs, sliding windows and automatic fallback — no network between peers.</p>
+    <ul class="ticks"><li>FAST &amp; ROBUST audible modes</li><li>Reed–Solomon + CRC-32 framing</li><li>SYN · ACK · NACK · FIN over the air</li></ul>
+    <p class="warnline">⚠ Open-source edition: audible only, <b>no encryption</b>. Anyone in earshot can decode.</p>
+    {% endblock %}
+  </div>
+  <div class="card authcard">{% block form %}{% endblock %}</div>
+</section>
+{% endblock %}

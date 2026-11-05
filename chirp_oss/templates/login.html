@@ -1,0 +1,18 @@
+<!--
+  WhisperLink OSS — sign-in form.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "_auth.html" %}
+{% block title %}Sign in · {{ APP_NAME }}{% endblock %}
+{% block form %}
+<h2>Sign in</h2>
+<form method="post" class="form">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <label>Username<input name="username" autocomplete="username" required autofocus></label>
+  <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+  <button class="btn primary wide">Sign in</button>
+</form>
+{% if allow_registration %}<p class="muted center">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+{% else %}<p class="muted center">Accounts are issued by an administrator.</p>{% endif %}
+{% endblock %}

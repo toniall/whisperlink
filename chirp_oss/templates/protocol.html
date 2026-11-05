@@ -1,0 +1,30 @@
+<!--
+  WhisperLink OSS — physical-layer and session-layer protocol notes.
+  Author: Antonio Brandao
+  License: MIT
+-->
+{% extends "base.html" %}
+{% block title %}Protocol · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<section class="narrow doc card">
+{% block doc %}
+<h1>How {{ APP_NAME }} works</h1>
+<h2>Physical layer</h2>
+<p>Each frame starts with a linear up-chirp preamble detected by FFT matched filtering, then 4 LFSR training symbols that verify the detection and fine-tune timing (±6 ms). Data symbols carry one nibble per band (16-tone FSK, Hann-windowed Goertzel detection).</p>
+<table class="table"><tr><th>Mode</th><th>Band</th><th>Bands × tones</th><th>Symbol</th><th>RS parity</th><th>MTU</th></tr>
+<tr><td>FAST</td><td>1.5–7.4 kHz</td><td>4 × 16</td><td>34 ms</td><td>8 B</td><td>64 B</td></tr>
+<tr><td>ROBUST</td><td>0.9–4.8 kHz</td><td>2 × 16</td><td>58 ms</td><td>16 B</td><td>32 B</td></tr></table>
+<p>Frame: <code>chirp · training · header(magic|mode, len, flags, CRC-8)+RS(6) · payload+CRC-32+RS(n)</code>.</p>
+<h2>Session layer</h2>
+<p>10-byte header: <code>type|ver, flags, sid, seq, ack, SACK bitmap, window</code>. Types SYN, SYN-ACK, ACK, DATA, FIN, RST, KA. Flags TURN, FIRST, LAST, NACK, ROBUST.</p>
+<ul>
+<li><b>Handshake</b> SYN → SYN-ACK → ACK with random ISNs and a 16-bit session id (several sessions can share a room).</li>
+<li><b>Half-duplex turns</b>: a burst of ≤ window frames ends with TURN; the peer answers with cumulative ACK + 8-bit selective-ACK bitmap. Missing frames are NACKed and resent first.</li>
+<li><b>Listen-before-talk</b>: never transmit while a frame is being received.</li>
+<li><b>Timers</b>: RTO from airtime with 1.5× backoff, delayed ACK if TURN is lost, keepalive every 20 s, FIN/FIN handshake, RST abort.</li>
+<li><b>Adaptation</b>: ≥50% loss in a burst, 2 timeouts, or a peer ROBUST request → switch to ROBUST and window 2; after 4 clean bursts return to the preferred mode.</li>
+</ul>
+<p class="banner warn">No encryption, no authentication: an eavesdropper can read and a nearby speaker can inject. This is by design for the OSS edition.</p>
+{% endblock %}
+</section>
+{% endblock %}

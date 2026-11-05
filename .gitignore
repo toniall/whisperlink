@@ -1,0 +1,10 @@
+instance/
+*.db
+*.db.bak*
+secret_key
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+node_modules/
