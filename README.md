@@ -106,15 +106,15 @@ SOFT-ULTRA may still be faintly audible to some listeners. Quiet modes in Pro do
 
 ## Demo logins (open edition)
 
-For the live open demo at https://whisperlink.abrandao.net/whisperlink/ :
+These passwords work only on the Open live demo at https://whisperlink.abrandao.net/whisperlink/ :
 
 | Username | Password |
 | --- | --- |
-| `demo` | TODO |
-| `alice` | TODO |
-| `bob` | TODO |
+| `demo` | WhisperLinkDemo!42 |
+| `alice` | WhisperLinkAlice42 |
+| `bob` | WhisperLinkBob!4242 |
 
-Admin and Pro credentials are never published here.
+The Pro demo uses separate private credentials. Do not store real data on the public demo.
 
 A fresh local install uses the `*-change-me` seed placeholders in the source, not the live demo passwords.
 
