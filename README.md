@@ -8,6 +8,14 @@ This repository is the **open edition**. It is audible and unencrypted by design
 
 **License:** MIT. See [LICENSE](LICENSE).
 
+## 30-second demo
+
+<video src="docs/whisperlink-30s.mp4" width="720" controls>
+  <a href="docs/whisperlink-30s.mp4">Watch the 30-second demo (MP4)</a>
+</video>
+
+[Watch in this repo](docs/whisperlink-30s.mp4) · [Download](https://whisperlink.abrandao.net/whisperlink-30s.mp4)
+
 ## Live demos
 
 | Edition | URL |
