@@ -10,11 +10,17 @@ This repository is the **open edition**. It is audible and unencrypted by design
 
 ## 30-second demo
 
-<video src="docs/whisperlink-30s.mp4" width="720" controls>
-  <a href="docs/whisperlink-30s.mp4">Watch the 30-second demo (MP4)</a>
-</video>
+<p align="center">
+  <a href="docs/whisperlink-30s.mp4">
+    <img src="docs/whisperlink-30s.gif" alt="WhisperLink 30-second demo" width="720">
+  </a>
+  <br>
+  <a href="docs/whisperlink-30s.mp4">Play the MP4</a>
+  ·
+  <a href="https://whisperlink.abrandao.net/whisperlink-30s.mp4">Download</a>
+</p>
 
-[Watch in this repo](docs/whisperlink-30s.mp4) · [Download](https://whisperlink.abrandao.net/whisperlink-30s.mp4)
+The GIF plays on this page. Click it for the MP4 with sound ([in this repo](docs/whisperlink-30s.mp4) or the [live copy](https://whisperlink.abrandao.net/whisperlink-30s.mp4)).
 
 ## Live demos
 
